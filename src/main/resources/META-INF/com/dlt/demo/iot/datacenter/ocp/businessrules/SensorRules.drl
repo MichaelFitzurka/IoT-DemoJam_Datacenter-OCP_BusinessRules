@@ -1,0 +1,39 @@
+package com.dlt.demo.iot.datacenter.ocp.businessrules
+
+import com.dlt.demo.iot.datacenter.ocp.businessrules.DataSet;
+
+rule "Temperature low"
+    lock-on-active true
+    dialect "java"
+    when
+    	$dataSet : DataSet(deviceType == "Temperature", payload <= 15)
+    then
+        System.out.println("Temperature " + $dataSet.getPayload() + " is low (ec=1)");
+        $dataSet.setErrorCode(1);
+        $dataSet.setErrorMessage("Temperature low");
+        update($dataSet);
+end
+
+rule "Temperature OK"
+    lock-on-active true
+    dialect "java"
+    when
+    	$dataSet : DataSet(deviceType == "Temperature", payload > 15, payload <= 30)
+    then
+        System.out.println("Temperature " + $dataSet.getPayload() + " is OK (ec=0)");
+        $dataSet.setErrorCode(0);
+        $dataSet.setErrorMessage("Temperature OK");
+        update($dataSet);
+end
+
+rule "Temperature high"
+    lock-on-active true
+    dialect "java"
+    when
+    	$dataSet : DataSet(deviceType == "Temperature", payload > 30)
+    then
+        System.out.println("Temperature " + $dataSet.getPayload() + " is high (ec=2)");
+        $dataSet.setErrorCode(2);
+        $dataSet.setErrorMessage("Temperature high");
+        update($dataSet);
+end
